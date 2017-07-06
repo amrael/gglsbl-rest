@@ -10,6 +10,7 @@ from dbfile import *
 # basic app configuration and options
 gsb_api_key = environ['GSB_API_KEY']
 environment = environ.get('ENVIRONMENT', 'prod').lower()
+update_db_interval = int(environ.get('UPDATE_DB_INTERVAL', 30 * 60))  # default is 30 minutes.
 logger = logging.getLogger('update')
 JOURNAL = '.update-journal'
 
@@ -28,7 +29,7 @@ def remove_inactive(inactive):
 def update_hash_prefix_cache():
     active = get_active()
     if active and active['ctime'] and active['mtime'] and min(active['ctime'], active['mtime']) >= (
-                time.time() - (30 * 60)):
+                time.time() - update_db_interval):
         # no need to update, active DB exists and is recent
         logger.info('active database is fresh')
         inactive = get_inactive()
